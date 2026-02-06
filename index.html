@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Surprise</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        
+        #game-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: #F8C8DC;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        .game-object {
+            position: absolute;
+            font-size: 2.5rem;
+            cursor: pointer;
+            user-select: none;
+            z-index: 10001;
+            padding: 10px;
+        }
+
+        .game-title {
+            font-family: 'Nunito', sans-serif;
+            color: white;
+            text-align: center;
+            width: 100%;
+            margin-top: 30px;
+            text-shadow: 2px 2px #ff8fab;
+            pointer-events: none;
+            z-index: 10000;
+            position: absolute;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head> 
+<body>
+
+    <div id="game-container">
+        <h1 class="game-title">Find the ❤️ to open your surprise!</h1>
+    </div>
+
+    <div id="main-content" class="container hidden">
+        <h1 id="mainText" class="header_text">Do you wanna go out with me?</h1>
+        <div class="gif_container">
+            <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDdtZ2JiZDR0a3lvMWF4OG8yc3p6Ymdvd3g2d245amdveDhyYmx6eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" alt="Cute animated illustration">
+        </div>
+        <div class="buttons">
+            <button class="btn" id="yesButton" onclick="nextPage()">Yes</button>
+            <button class="btn" id="noButton" onmouseover="moveButton()" onclick="moveButton()">No</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION - ADJUST MO DITO ANG SETTINGS
+        // ==========================================
+        const ICON_COUNT = 40;     // Dami ng panggulo na icons
+        const MIN_SPEED = 0.1;       // Pinakamabagal na speed
+        const MAX_SPEED = 0.05;       // Pinakamabilis na speed
+        // ==========================================
+
+        const gameContainer = document.getElementById('game-container');
+        const mainContent = document.getElementById('main-content');
+        const icons = ['⭐', '🎈', '🌸', '☁️', '🍭', '🎀', '🐱', '✨', '🎁', '🧸', '🌈', '🍦'];
+        
+        for (let i = 0; i < ICON_COUNT; i++) {
+            createIcon(icons[Math.floor(Math.random() * icons.length)], false);
+        }
+        createIcon('❤️', true);
+
+        function createIcon(emoji, isTarget) {
+            const span = document.createElement('span');
+            span.innerText = emoji;
+            span.className = 'game-object';
+            
+            let posX = Math.random() * 90; 
+            let posY = Math.random() * 90;
+            
+            // Random speed base sa config mo sa taas
+            let speedX = (Math.random() < 0.5 ? 1 : -1) * (Math.random() * (MAX_SPEED - MIN_SPEED) + MIN_SPEED);
+            let speedY = (Math.random() < 0.5 ? 1 : -1) * (Math.random() * (MAX_SPEED - MIN_SPEED) + MIN_SPEED);
+
+            function animate() {
+                posX += speedX;
+                posY += speedY;
+                
+                if (posX <= 0 || posX >= 95) speedX *= -1;
+                if (posY <= 0 || posY >= 95) speedY *= -1;
+
+                span.style.left = posX + 'vw';
+                span.style.top = posY + 'vh';
+                
+                if (gameContainer.classList.contains('hidden')) return;
+                requestAnimationFrame(animate);
+            }
+
+            span.addEventListener('mousedown', function() {
+                if (isTarget) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    gameContainer.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                }
+            });
+            
+            // Touch support para sa mobile
+            span.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                if (isTarget) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    gameContainer.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                }
+            });
+
+            gameContainer.appendChild(span);
+            animate();
+        }
+
+        function nextPage() {
+            window.location.href = "yes.html";
+        }
+
+        const messages = [
+            "Bakit no? Gusto ko naman kasama ka sa valentines...",
+            "Sure ka na ba talaga dyan? :(",
+            "Isipin mo muna ulit please!",
+            "Wag mo naman akong tanggihan...",
+            "Luh, gusto ko naman idate kita sa valentines eh.."
+        ];
+        let messageIndex = 0;
+
+        function moveButton() {
+            const textElement = document.getElementById('mainText');
+            textElement.innerText = messages[messageIndex];
+            messageIndex = (messageIndex + 1) % messages.length;
+
+            const btn = document.getElementById('noButton');
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+            
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+        }
+    </script> 
+</body> 
+</html>

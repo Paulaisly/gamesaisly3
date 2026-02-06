@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./yes_style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 1s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .btn {
+            background-color: #a10d23;
+            color: white;
+            padding: 15px 32px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            transition: 0.3s;
+            margin: 10px;
+        }
+        .btn:hover { background-color: #f19cbf; }
+
+        /* Draggable style */
+        .draggable {
+            position: absolute;
+            cursor: move;
+            user-drag: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        /* Container ng final phase para hindi lumampas ang GIFs */
+        #phase3 {
+            position: relative;
+            width: 100%;
+            height: 90vh; /* Itinaas ko nang konti ang height para sa malalaking GIF */
+            overflow: hidden;
+        }
+    </style>
+</head> 
+<body>
+    <div class="container">
+        <div id="phase1" class="fade-in">
+            <h1 class="header_text" style="color: #9a0909;">Yeeeyyyy!!</h1>
+            <div class="gif_container">
+                <img src="https://media0.giphy.com/media/T86i6yDyOYz7J6dPhf/giphy.gif" alt="Cute animated illustration">
+            </div>
+            <button class="btn" onclick="showPhase2()">Next ➜</button>
+        </div>
+
+        <div id="phase2" class="hidden fade-in">
+            <h1 class="header_text" style="color: #9a0909;">
+                Saan mo gusto? Pero may plano na ako, baka may gusto ka lang gawin sa Valentine?
+            </h1>
+            <div class="gif_container">
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueWp3eTYycW9ueXByNXpueXF4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3oriO0OEd9QIDdllqo/giphy.gif" alt="Thinking cat">
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="showFinalMessage('Yes')">Yes, may suggest ako!</button>
+                <button class="btn" onclick="showFinalMessage('No')">No, okay na ako sa plan mo</button>
+            </div>
+        </div>
+
+        <div id="phase3" class="hidden fade-in">
+            <h1 class="header_text" id="finalText" style="color: #9a0909;"></h1>
+            
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHdvdGhjYzNvMHVubGM2NTY2Ym41eTEzamdpOGFramtjY3Exb3o3diZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/tFqKgC5KSoZRm/giphy.gif" 
+                 class="draggable" 
+                 style="top: 15%; left: 5%; width: 350px;">
+
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzA5cWhibHpob3pucXduMTV1d3R4b2VnY2pydWNmN2ppZXc1ODJ5diZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/euW6JDwrMn0BqyNC8t/giphy.gif" 
+                 class="draggable" 
+                 style="top: 35%; left: 35%; width: 300px;">
+
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHdvdGhjYzNvMHVubGM2NTY2Ym41eTEzamdpOGFramtjY3Exb3o3diZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/wIUQQ07BHzDry/giphy.gif" 
+                 class="draggable" 
+                 style="top: 15%; left: 65%; width: 350px;">
+        </div>
+    </div>
+
+    <script>
+        function showPhase2() {
+            document.getElementById('phase1').classList.add('hidden');
+            document.getElementById('phase2').classList.remove('hidden');
+        }
+
+        function fireConfetti() {
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#FFB6C1', '#FF69B4', '#FFFFFF', '#9a0909']
+            });
+        }
+
+        function showFinalMessage(choice) {
+            document.getElementById('phase2').classList.add('hidden');
+            document.getElementById('phase3').classList.remove('hidden');
+            
+            const finalTxt = document.getElementById('finalText');
+            if(choice === 'Yes') {
+                finalTxt.innerText = "Yown! Sabihin mo na sa chat kung ano 'yun ha? Excited na ako! ❤️";
+            } else {
+                finalTxt.innerText = "Sige sige, sabihin mo nalang sakin sa chat kung nagbago isip mo! See you! ❤️";
+            }
+            
+            fireConfetti();
+            makeDraggable();
+        }
+
+        function makeDraggable() {
+            const elements = document.querySelectorAll('.draggable');
+            elements.forEach(el => {
+                let isDragging = false;
+                let offsetX, offsetY;
+
+                el.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    offsetX = e.clientX - el.getBoundingClientRect().left;
+                    offsetY = e.clientY - el.getBoundingClientRect().top;
+                    el.style.zIndex = 1000;
+                    // Reset others zIndex
+                    elements.forEach(other => { if(other !== el) other.style.zIndex = 1; });
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    el.style.left = `${e.clientX - offsetX}px`;
+                    el.style.top = `${e.clientY - offsetY}px`;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            });
+        }
+    </script>
+</body> 
+</html>
